@@ -12,13 +12,13 @@
 
     <groupId>com.suchtool</groupId>
     <artifactId>nicelimit-spring-boot-starter</artifactId>
-    <version>1.0.21</version>
+    <version>1.0.22</version>
 
     <packaging>jar</packaging>
     <name>nicelimit-spring-boot-starter</name>
     <description>Nice rate limit for SpringBoot project</description>
 
-    <url>https://github.com/knife-blade/nicelimit</url>
+    <url>https://github.com/knifeopen/nicelimit</url>
 
     <dependencyManagement>
         <dependencies>
@@ -236,15 +236,15 @@
         </license>
     </licenses>
     <scm>
-        <url>https://github.com/knife-blade/nicelock</url>
-        <connection>https://github.com/knife-blade/nicelock.git</connection>
+        <url>https://github.com/knifeopen/nicelock</url>
+        <connection>https://github.com/knifeopen/nicelock.git</connection>
     </scm>
     <developers>
         <developer>
             <id>knifeout</id>
             <name>knifeout</name>
             <email>knife_out@163.com</email>
-            <url>https://github.com/knife-blade</url>
+            <url>https://github.com/knifeopen</url>
         </developer>
     </developers>
 
