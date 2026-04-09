@@ -163,16 +163,16 @@ suchtool.nicelimit.rate-limit配置：
 
 suchtool.nicelimit.user-count-limit配置：
 
-| 配置           | 描述                   | 默认值     |
-|----------------|-----------------------|------------|
+| 配置           | 描述             | 默认值     |
+|----------------|-----------------|------------|
 | enabled        | 是否启用 | false |
-| max-user-count | 最大用户数量 | 1000 |
-| time-window    | 时间窗口     | 30m |
 | limiter-key-prefix  | 用户数量限制器的key前缀  | nicelimit:user-count-limit |
 | bucket-count  | 桶的数量（若并发量大，可适当增加）  | 1 |
-| limited-status-code | 被限制时的状态码      | null |
-| limited-content-type| 被限制时的内容类型    | null |
-| limited-message     | 被限制时的提示信息    | null |
+| time-window    | 时间窗口     | 30m |
+| max-user-count | 最大用户数量 | 1000 |
+| limited-status-code | 被限制时的状态码   | null |
+| limited-content-type| 被限制时的内容类型 | null |
+| limited-message     | 被限制时的提示信息 | null |
 
 如果本处的limited-status-code、limited-content-type、limited-message没配置，则取顶层（suchtool.nicelimit.xxx）的配置。
 
@@ -180,7 +180,7 @@ suchtool.nicelimit.user-count-limit配置：
 
 **法1：** 实现NiceLimitCallback#provideUserId(String userId)
 
-此法适用于使用过滤器鉴权的项目。需配合：suchtool.nicelimit.filter.filter-order
+此法适用于使用过滤器鉴权的项目。需配合：suchtool.nicelimit.filter.filter-order，保证此过滤器晚于业务项目过滤器执行。
 
 ```java
 @Component
@@ -195,7 +195,7 @@ public class CustomNiceLimitCallbackImpl implements NiceLimitCallback{
 
 **法2：** 手动调用NiceLimitUserCountHandler#checkLimit(String userId)
 
-此法适用于任意项目，在鉴权的地方加下边这行代码即可
+此法适用于任意项目，在鉴权的地方加下边这行代码即可。
 
 ```java
 import org.springframework.beans.factory.annotation.Autowired;
@@ -207,7 +207,11 @@ public class YourClass {
     private NiceLimitUserCountHandler niceLimitUserCountHandler;
 
     public void checkAuth(String userId) {
-        niceLimitUserCountHandler.checkLimit(userId);
+        NiceLimitLimitedDTO niceLimitLimitedDTO = niceLimitUserCountHandler.checkLimit(userId);
+        // 非null，则表示被限制
+        if (niceLimitLimitedDTO != null) {
+            // 取出niceLimitLimitedDTO内的数据，进行报错
+        }
     }
 }
 
