@@ -1,26 +1,40 @@
 package com.suchtool.nicelimit.filter;
 
+import com.suchtool.nicelimit.callback.NiceLimitCallback;
 import com.suchtool.nicelimit.dto.NiceLimitLimitedDTO;
-import com.suchtool.nicelimit.handler.NiceLimitHandler;
+import com.suchtool.nicelimit.handler.NiceLimitUrlHandler;
+import com.suchtool.nicelimit.handler.NiceLimitUserCountHandler;
+import com.suchtool.nicelimit.property.NiceLimitProperty;
+import com.suchtool.nicetool.util.spring.ApplicationContextHolder;
 import jakarta.servlet.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.Ordered;
+import org.springframework.util.StringUtils;
 
 import java.io.IOException;
 
 @Slf4j
 public class NiceLimitFilterJakarta implements Filter, Ordered {
 
-    private final NiceLimitHandler niceLimitHandler;
-
     private final Integer order;
 
-    public NiceLimitFilterJakarta(NiceLimitHandler niceLimitHandler,
-                                  Integer order) {
-        this.niceLimitHandler = niceLimitHandler;
+    private final NiceLimitProperty niceLimitProperty;
+
+    private final NiceLimitUrlHandler niceLimitUrlHandler;
+
+    private final NiceLimitUserCountHandler niceLimitUserCountHandler;
+
+    public NiceLimitFilterJakarta(Integer order,
+                                NiceLimitProperty niceLimitProperty,
+                                NiceLimitUrlHandler niceLimitUrlHandler,
+                                NiceLimitUserCountHandler niceLimitUserCountHandler
+    ) {
         this.order = order;
+        this.niceLimitProperty = niceLimitProperty;
+        this.niceLimitUrlHandler = niceLimitUrlHandler;
+        this.niceLimitUserCountHandler = niceLimitUserCountHandler;
     }
 
     @Override
@@ -53,7 +67,17 @@ public class NiceLimitFilterJakarta implements Filter, Ordered {
             HttpServletRequest httpServletRequest = (HttpServletRequest) servletRequest;
             String url = httpServletRequest.getRequestURI();
 
-            NiceLimitLimitedDTO niceLimitLimitedDTO = niceLimitHandler.checkLimit(url);
+            NiceLimitLimitedDTO niceLimitLimitedDTO = niceLimitUrlHandler.checkLimit(url);
+
+            if (niceLimitLimitedDTO == null
+                    && niceLimitProperty.getUserCountLimit() != null
+                    && Boolean.TRUE.equals(niceLimitProperty.getUserCountLimit().getEnabled())) {
+                NiceLimitCallback niceLimitCallback = ApplicationContextHolder.getContext()
+                        .getBeanProvider(NiceLimitCallback.class).getIfAvailable();
+                if (niceLimitCallback != null && StringUtils.hasText(niceLimitCallback.provideUserId())) {
+                    niceLimitLimitedDTO = niceLimitUserCountHandler.checkLimit(niceLimitCallback.provideUserId());
+                }
+            }
 
             if (niceLimitLimitedDTO != null) {
                 if (servletResponse instanceof HttpServletResponse) {

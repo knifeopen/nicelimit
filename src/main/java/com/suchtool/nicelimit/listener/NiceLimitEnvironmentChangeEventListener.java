@@ -1,6 +1,6 @@
 package com.suchtool.nicelimit.listener;
 
-import com.suchtool.nicelimit.handler.NiceLimitHandler;
+import com.suchtool.nicelimit.handler.NiceLimitUrlHandler;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.context.environment.EnvironmentChangeEvent;
 import org.springframework.context.ApplicationListener;
@@ -10,10 +10,10 @@ import java.util.Set;
 
 @Slf4j
 public class NiceLimitEnvironmentChangeEventListener implements ApplicationListener<EnvironmentChangeEvent> {
-    private final NiceLimitHandler niceLimitHandler;
+    private final NiceLimitUrlHandler niceLimitUrlHandler;
 
-    public NiceLimitEnvironmentChangeEventListener(NiceLimitHandler niceLimitHandler) {
-        this.niceLimitHandler = niceLimitHandler;
+    public NiceLimitEnvironmentChangeEventListener(NiceLimitUrlHandler niceLimitUrlHandler) {
+        this.niceLimitUrlHandler = niceLimitUrlHandler;
     }
 
     @Override
@@ -30,7 +30,7 @@ public class NiceLimitEnvironmentChangeEventListener implements ApplicationListe
                 }
 
                 if (requireUpdateConfig) {
-                    niceLimitHandler.doCheckAndUpdateConfig();
+                    niceLimitUrlHandler.doCheckAndUpdateConfig();
                 }
             }
         } catch (Exception e) {

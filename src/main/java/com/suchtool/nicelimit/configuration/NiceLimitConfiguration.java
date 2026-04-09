@@ -3,7 +3,8 @@ package com.suchtool.nicelimit.configuration;
 
 import com.suchtool.nicelimit.filter.NiceLimitFilterJakarta;
 import com.suchtool.nicelimit.filter.NiceLimitFilterJavax;
-import com.suchtool.nicelimit.handler.NiceLimitHandler;
+import com.suchtool.nicelimit.handler.NiceLimitUrlHandler;
+import com.suchtool.nicelimit.handler.NiceLimitUserCountHandler;
 import com.suchtool.nicelimit.listener.NiceLimitEnvironmentChangeEventListener;
 import com.suchtool.nicelimit.property.NiceLimitFilterProperty;
 import com.suchtool.nicelimit.property.NiceLimitProperty;
@@ -29,20 +30,26 @@ public class NiceLimitConfiguration {
 
     @Bean(name = "com.suchtool.nicelimit.niceLimitEnvironmentChangeEventListener")
     public NiceLimitEnvironmentChangeEventListener niceLimitEnvironmentChangeEventListener(
-            NiceLimitHandler niceLimitHandler) {
-        return new NiceLimitEnvironmentChangeEventListener(niceLimitHandler);
+            NiceLimitUrlHandler niceLimitUrlHandler) {
+        return new NiceLimitEnvironmentChangeEventListener(niceLimitUrlHandler);
     }
 
-    @Bean(name = "com.suchtool.nicelimit.niceLimitHandler")
-    public NiceLimitHandler niceLimitHandler(NiceLimitProperty niceLimitProperty,
-                                             RedissonClient redissonClient) {
-        return new NiceLimitHandler(niceLimitProperty, redissonClient);
+    @Bean(name = "com.suchtool.nicelimit.niceLimitUrlHandler")
+    public NiceLimitUrlHandler niceLimitHandler(NiceLimitProperty niceLimitProperty,
+                                                RedissonClient redissonClient) {
+        return new NiceLimitUrlHandler(niceLimitProperty, redissonClient);
+    }
+
+    @Bean(name = "com.suchtool.nicelimit.niceLimitUserCountHandler")
+    public NiceLimitUserCountHandler niceLimitUserCountHandler(NiceLimitProperty niceLimitProperty,
+                                                               RedissonClient redissonClient) {
+        return new NiceLimitUserCountHandler(niceLimitProperty, redissonClient);
     }
 
     @Bean(name = "com.suchtool.nicelimit.niceLimitApplicationRunner")
     public NiceLimitApplicationRunner niceLimitApplicationRunner(
-            NiceLimitHandler niceLimitHandler) {
-        return new NiceLimitApplicationRunner(niceLimitHandler);
+            NiceLimitUrlHandler niceLimitUrlHandler) {
+        return new NiceLimitApplicationRunner(niceLimitUrlHandler);
     }
 
     /**
@@ -53,14 +60,15 @@ public class NiceLimitConfiguration {
     @ConditionalOnProperty(name = "suchtoolnicelimit.type", havingValue = "SERVLET")
     protected static class NiceLimitFilterJavaxConfiguration {
         @Bean(name = "com.suchtool.nicelimit.niceLimitFilterJavax")
-        public NiceLimitFilterJavax niceLimitFilterJavax(NiceLimitHandler niceLimitHandler,
+        public NiceLimitFilterJavax niceLimitFilterJavax(NiceLimitUrlHandler niceLimitUrlHandler,
+                                                         NiceLimitUserCountHandler niceLimitUserCountHandler,
                                                          NiceLimitProperty niceLimitProperty) {
             NiceLimitFilterProperty filter = niceLimitProperty.getFilter();
             if (filter == null) {
                 filter = new NiceLimitFilterProperty();
             }
 
-            return new NiceLimitFilterJavax(niceLimitHandler, filter.getFilterOrder());
+            return new NiceLimitFilterJavax(filter.getFilterOrder(), niceLimitProperty, niceLimitUrlHandler, niceLimitUserCountHandler);
         }
     }
 
@@ -72,14 +80,15 @@ public class NiceLimitConfiguration {
     @ConditionalOnProperty(name = "suchtoolnicelimit.type", havingValue = "SERVLET")
     protected static class NiceLimitFilterJakartaConfiguration {
         @Bean(name = "com.suchtool.nicelimit.niceLimitFilterJakarta")
-        public NiceLimitFilterJakarta niceLimitFilterJakarta(NiceLimitHandler niceLimitHandler,
+        public NiceLimitFilterJakarta niceLimitFilterJakarta(NiceLimitUrlHandler niceLimitUrlHandler,
+                                                             NiceLimitUserCountHandler niceLimitUserCountHandler,
                                                              NiceLimitProperty niceLimitProperty) {
             NiceLimitFilterProperty filter = niceLimitProperty.getFilter();
             if (filter == null) {
                 filter = new NiceLimitFilterProperty();
             }
 
-            return new NiceLimitFilterJakarta(niceLimitHandler, filter.getFilterOrder());
+            return new NiceLimitFilterJakarta(filter.getFilterOrder(), niceLimitProperty, niceLimitUrlHandler, niceLimitUserCountHandler);
         }
     }
 }
