@@ -54,21 +54,21 @@ suchtool:
     enabled: true
     # 此项必须指定
     type: SERVLET
-    config-key: "${app.id}:nicelimit:update-lock"
-    update-lock-key: "${app.id}:nicelimit:update-lock"
-    rate-limiter-key-prefix: "${app.id}:nicelimit:rate-limiter"
+    config-key: "nicelimit:update-lock"
+    update-lock-key: "nicelimit:update-lock"
+    rate-limiter-key-prefix: "nicelimit:rate-limiter"
     limited-status-code: 429
     limited-content-type: "text/plain;charset=UTF-8"
-    limited-message: '哎呀，访问量好大，请稍后再试试吧~'
+    limited-message: '访问量好大，请稍后再试试吧~'
     # 用户数量限制
     user-count-limit:
       enabled: true
       max-user-count: 1000
       time-window: 30s
-      limiter-key-prefix: "{${app.id}:nicelimit:user-count-limit}"
+      limiter-key-prefix: "nicelimit:user-count-limit"
       limited-status-code: 200
       limited-content-type: "application/json;charset=UTF-8"
-      limited-message: '{"code":1,"msg":"访问量大，请稍后再试~","data":null}'
+      limited-message: '{"code":1,"msg":"用户量大，请稍后再试~","data":null}'
     # 禁止访问
     forbid:
       -
@@ -117,7 +117,7 @@ suchtool:
 | suchtool.nicelimit.filter      | 过滤器配置。suchtool.nicelimit.type为SERVLET时可指定 | null |
 | suchtool.nicelimit.forbid      | 禁止访问的配置  | null  |
 | suchtool.nicelimit.rate-limit  | 限流的配置  | null  |
-| suchtool.nicelimit.user-count-limit      | 用户数量限制  | null  |
+| suchtool.nicelimit.user-count-limit | 用户数量限制  | null  |
 
 #### 4.2 过滤器
 
@@ -125,8 +125,8 @@ suchtool:
 
 suchtool.nicelimit.filter的配置：
 
-| 配置           | 描述                   | 默认值     |
-|----------------|-----------------------|------------|
+| 配置           | 描述             | 默认值     |
+|----------------|-----------------|------------|
 | filter-order   | 过滤器顺序       | 100            |
 
 #### 4.3 禁止访问
