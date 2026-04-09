@@ -2,6 +2,7 @@ package com.suchtool.nicelimit.property;
 
 import com.suchtool.nicelimit.constant.NiceLimitType;
 import lombok.Data;
+import org.springframework.boot.context.properties.NestedConfigurationProperty;
 
 import java.util.List;
 
@@ -56,6 +57,13 @@ public class NiceLimitProperty{
      * 限流器的key前缀
      */
     private String rateLimiterKeyPrefix = "nicelimit:rate-limiter";
+
+    /**
+     * 用户数量限制（并发在线用户数）
+     */
+    @NestedConfigurationProperty
+    private NiceLimitUserCountLimitProperty userCountLimit;
+
 
     /**
      * 禁止访问

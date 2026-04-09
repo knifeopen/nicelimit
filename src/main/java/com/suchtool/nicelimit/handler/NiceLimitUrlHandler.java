@@ -19,7 +19,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Slf4j
-public class NiceLimitHandler {
+public class NiceLimitUrlHandler {
     private NiceLimitProperty oldProperty;
 
     private final NiceLimitProperty newProperty;
@@ -41,8 +41,8 @@ public class NiceLimitHandler {
      */
     private final Map<String, RRateLimiter> rateLimiterMap = new HashMap<>();
 
-    public NiceLimitHandler(NiceLimitProperty newProperty,
-                            RedissonClient redissonClient) {
+    public NiceLimitUrlHandler(NiceLimitProperty newProperty,
+                               RedissonClient redissonClient) {
         this.newProperty = newProperty;
         this.redissonClient = redissonClient;
     }

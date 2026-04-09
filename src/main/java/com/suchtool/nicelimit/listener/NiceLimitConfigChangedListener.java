@@ -1,6 +1,6 @@
 package com.suchtool.nicelimit.listener;
 
-import com.suchtool.nicelimit.handler.NiceLimitHandler;
+import com.suchtool.nicelimit.handler.NiceLimitUrlHandler;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.AfterReturning;
@@ -14,10 +14,10 @@ import java.util.Set;
 @Aspect
 @Slf4j
 public class NiceLimitConfigChangedListener {
-    private final NiceLimitHandler niceLimitHandler;
+    private final NiceLimitUrlHandler niceLimitUrlHandler;
 
-    public NiceLimitConfigChangedListener(NiceLimitHandler niceLimitHandler) {
-        this.niceLimitHandler = niceLimitHandler;
+    public NiceLimitConfigChangedListener(NiceLimitUrlHandler niceLimitUrlHandler) {
+        this.niceLimitUrlHandler = niceLimitUrlHandler;
     }
 
     @Pointcut("execution(* org.springframework.cloud.context.properties.ConfigurationPropertiesRebinder.onApplicationEvent(..))")
@@ -56,7 +56,7 @@ public class NiceLimitConfigChangedListener {
             }
 
             if (requireUpdateConfig) {
-                niceLimitHandler.doCheckAndUpdateConfig();
+                niceLimitUrlHandler.doCheckAndUpdateConfig();
             }
         }
     }
