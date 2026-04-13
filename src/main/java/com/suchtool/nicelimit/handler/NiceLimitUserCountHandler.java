@@ -3,6 +3,8 @@ package com.suchtool.nicelimit.handler;
 import com.suchtool.nicelimit.dto.NiceLimitLimitedDTO;
 import com.suchtool.nicelimit.property.NiceLimitProperty;
 import com.suchtool.nicelimit.property.NiceLimitUserCountLimitProperty;
+import lombok.extern.slf4j.Slf4j;
+import org.redisson.api.RKeys;
 import org.redisson.api.RScript;
 import org.redisson.api.RedissonClient;
 import org.redisson.client.codec.LongCodec;
@@ -11,6 +13,7 @@ import org.springframework.util.StringUtils;
 import java.util.Arrays;
 import java.util.List;
 
+@Slf4j
 public class NiceLimitUserCountHandler {
     /**
      * KEYS[1] 用户滑动窗口 ZSET，member=userId，score=该用户最近命中的窗口时间戳（毫秒）。
@@ -55,6 +58,18 @@ public class NiceLimitUserCountHandler {
                                   RedissonClient redissonClient) {
         this.niceLimitProperty = niceLimitProperty;
         this.redissonClient = redissonClient;
+    }
+
+    public void doCheckAndUpdateConfig() {
+        NiceLimitUserCountLimitProperty userCountLimitProperty = niceLimitProperty.getUserCountLimit();
+        if (userCountLimitProperty != null
+                && !Boolean.TRUE.equals(userCountLimitProperty.getEnabled())) {
+
+            String limiterKeyPrefix = userCountLimitProperty.getLimiterKeyPrefix();
+            RKeys keys = redissonClient.getKeys();
+            long delete = keys.deleteByPattern(limiterKeyPrefix + "*");
+            log.info("nicelimit limit-user-count key{} is deleted successfully", limiterKeyPrefix);
+        }
     }
 
     /**
@@ -103,6 +118,7 @@ public class NiceLimitUserCountHandler {
         );
 
         if (allowed != null && allowed.intValue() == 0) {
+            log.info("nicelimit limit-user-count：{} is limited", userId);
             return buildLimitedDto();
         }
 

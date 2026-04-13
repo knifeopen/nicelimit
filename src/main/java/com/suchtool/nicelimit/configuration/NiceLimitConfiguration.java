@@ -5,7 +5,7 @@ import com.suchtool.nicelimit.filter.NiceLimitFilterJakarta;
 import com.suchtool.nicelimit.filter.NiceLimitFilterJavax;
 import com.suchtool.nicelimit.handler.NiceLimitUrlHandler;
 import com.suchtool.nicelimit.handler.NiceLimitUserCountHandler;
-import com.suchtool.nicelimit.listener.NiceLimitEnvironmentChangeEventListener;
+import com.suchtool.nicelimit.listener.NiceLimitConfigChangedListener;
 import com.suchtool.nicelimit.property.NiceLimitFilterProperty;
 import com.suchtool.nicelimit.property.NiceLimitProperty;
 import com.suchtool.nicelimit.runner.NiceLimitApplicationRunner;
@@ -28,10 +28,12 @@ public class NiceLimitConfiguration {
         return new NiceLimitProperty();
     }
 
-    @Bean(name = "com.suchtool.nicelimit.niceLimitEnvironmentChangeEventListener")
-    public NiceLimitEnvironmentChangeEventListener niceLimitEnvironmentChangeEventListener(
-            NiceLimitUrlHandler niceLimitUrlHandler) {
-        return new NiceLimitEnvironmentChangeEventListener(niceLimitUrlHandler);
+    @Bean(name = "com.suchtool.nicelimit.niceLimitConfigChangedListener")
+    public NiceLimitConfigChangedListener niceLimitConfigChangedListener(
+            NiceLimitUrlHandler niceLimitUrlHandler,
+            NiceLimitUserCountHandler niceLimitUserCountHandler
+            ) {
+        return new NiceLimitConfigChangedListener(niceLimitUrlHandler, niceLimitUserCountHandler);
     }
 
     @Bean(name = "com.suchtool.nicelimit.niceLimitUrlHandler")

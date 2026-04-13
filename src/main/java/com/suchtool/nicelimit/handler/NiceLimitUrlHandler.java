@@ -50,7 +50,7 @@ public class NiceLimitUrlHandler {
     public void doCheckAndUpdateConfig() {
         if (requireUpdateLocal()) {
             if (newProperty.getDebug()) {
-                log.info("nicelimit update local start");
+                log.info("nicelimit limit-url update local start");
             }
             String newConfigJsonString = JsonUtil.toJsonString(newProperty);
             // 更新本地配置
@@ -62,13 +62,13 @@ public class NiceLimitUrlHandler {
             String remotePropertyJson = configBucket.get();
 
             if (newProperty.getDebug()) {
-                log.info("nicelimit fetch remote config result: {}", remotePropertyJson);
+                log.info("nicelimit limit-url fetch remote config result: {}", remotePropertyJson);
             }
 
             NiceLimitProperty remoteProperty = null;
             if (!StringUtils.hasText(remotePropertyJson)) {
                 if (newProperty.getDebug()) {
-                    log.info("nicelimit remote config is blank, update remote is required");
+                    log.info("nicelimit limit-url remote config is blank, update remote is required");
                 }
                 requireUpdateRemote = true;
             } else {
@@ -80,7 +80,7 @@ public class NiceLimitUrlHandler {
             }
 
             if (newProperty.getDebug()) {
-                log.info("nicelimit requireUpdateRemote: {}", requireUpdateRemote);
+                log.info("nicelimit limit-url requireUpdateRemote: {}", requireUpdateRemote);
             }
 
             // 更新redis的配置
@@ -93,7 +93,7 @@ public class NiceLimitUrlHandler {
                         configBucket.set(newConfigJsonString);
 
                         if (newProperty.getDebug()) {
-                            log.info("nicelimit update remote config as: {}", newProperty);
+                            log.info("nicelimit limit-url update remote config as: {}", newProperty);
                         }
                     } catch (Exception e) {
                         log.error("nicelimit update remote error", e);
@@ -109,13 +109,13 @@ public class NiceLimitUrlHandler {
 
     public NiceLimitLimitedDTO checkLimit(String url) {
         if (newProperty.getDebug()) {
-            log.info("nicelimit checkLimit. url:{}", url);
+            log.info("nicelimit limit-url checkLimit. url:{}", url);
         }
 
         if (newProperty.getEnabled() == null
                 || !newProperty.getEnabled()) {
             if (newProperty.getDebug()) {
-                log.info("nicelimit is not enabled, don't check rate limiter. url:{}", url);
+                log.info("nicelimit limit-url is not enabled, don't check rate limiter. url:{}", url);
             }
 
             return null;
@@ -164,7 +164,7 @@ public class NiceLimitUrlHandler {
         }
 
         NiceLimitLimitedDTO dto = toDTO(niceLimitForbidProperty);
-        log.info("nicelimit limited by checkByForbid. url:{}, return: {}", url, JsonUtil.toJsonString(dto));
+        log.info("nicelimit limit-url limited by checkByForbid. url:{}, return: {}", url, JsonUtil.toJsonString(dto));
 
         return dto;
     }
@@ -192,7 +192,7 @@ public class NiceLimitUrlHandler {
 
         RRateLimiter rateLimiter = rateLimiterMap.get(url);
         if (rateLimiter == null) {
-            log.info("nicelimit rateLimiter is null, recreate start. url:{}", url);
+            log.info("nicelimit limit-url rateLimiter is null, recreate start. url:{}", url);
             rateLimiter = doCreateRateLimiter(niceLimitRateLimiterProperty);
         }
 
@@ -204,7 +204,7 @@ public class NiceLimitUrlHandler {
                                 ? null
                                 : rateLimiterPropertyMap.get(url);
                 NiceLimitLimitedDTO dto = toDTO(rateLimiterProperty);
-                log.info("nicelimit limited by checkByRateLimit. url:{}, return: {}", url, JsonUtil.toJsonString(dto));
+                log.info("nicelimit limit-url limited by checkByRateLimit. url:{}, return: {}", url, JsonUtil.toJsonString(dto));
                 return dto;
             } else {
                 return null;
@@ -241,12 +241,12 @@ public class NiceLimitUrlHandler {
 
     private void deleteOldRateLimiter(NiceLimitProperty remoteProperty) {
         if (newProperty.getDebug()) {
-            log.info("nicelimit delete old rate limiter start");
+            log.info("nicelimit limit-url delete old rate limiter start");
         }
 
         if (remoteProperty == null) {
             if (newProperty.getDebug()) {
-                log.info("nicelimit don't delete old rate limiter(remote property is null,)");
+                log.info("nicelimit limit-url don't delete old rate limiter(remote property is null,)");
             }
             return;
         }
@@ -254,7 +254,7 @@ public class NiceLimitUrlHandler {
         List<NiceLimitRateLimiterProperty> detailList = remoteProperty.getRateLimit();
         if (CollectionUtils.isEmpty(detailList)) {
             if (newProperty.getDebug()) {
-                log.info("nicelimit don't delete old rate limiter(remote property detail is empty)");
+                log.info("nicelimit limit-url don't delete old rate limiter(remote property detail is empty)");
             }
             return;
         }
@@ -264,7 +264,7 @@ public class NiceLimitUrlHandler {
                     buildRateLimiterKey(remoteProperty, detailProperty.getUrl()));
             rateLimiter.delete();
             if (newProperty.getDebug()) {
-                log.info("nicelimit delete old rate limiter successfully, detail property: {}",
+                log.info("nicelimit limit-url delete old rate limiter successfully, detail property: {}",
                         JsonUtil.toJsonString(detailProperty)
                 );
             }
@@ -273,18 +273,18 @@ public class NiceLimitUrlHandler {
 
     private void createAndRecordRateLimiter() {
         if (newProperty.getDebug()) {
-            log.info("nicelimit create new rate limiter start");
+            log.info("nicelimit limit-url create new rate limiter start");
         }
 
         rateLimiterMap.clear();
         if (newProperty.getDebug()) {
-            log.info("nicelimit clear old rateLimiterMap");
+            log.info("nicelimit limit-url clear old rateLimiterMap");
         }
 
         List<NiceLimitRateLimiterProperty> detailList = newProperty.getRateLimit();
         if (CollectionUtils.isEmpty(detailList)) {
             if (newProperty.getDebug()) {
-                log.info("nicelimit don't create new rate limiter(detail property is empty)");
+                log.info("nicelimit limit-url don't create new rate limiter(detail property is empty)");
             }
             return;
         }
@@ -312,7 +312,7 @@ public class NiceLimitUrlHandler {
         rateLimiterMap.put(detailProperty.getUrl(), rateLimiter);
 
         if (newProperty.getDebug()) {
-            log.info("nicelimit create new rate limiter successfully, detail property: {}",
+            log.info("nicelimit limit-url create new rate limiter successfully, detail property: {}",
                     JsonUtil.toJsonString(detailProperty));
         }
 
@@ -325,7 +325,7 @@ public class NiceLimitUrlHandler {
             forbidPropertyMap = forbidProperties.stream()
                     .collect(Collectors.toMap(NiceLimitForbidProperty::getUrl, Function.identity()));
             if (newProperty.getDebug()) {
-                log.info("nicelimit updateLocalForbidPropertyMap as: {}", JsonUtil.toJsonString(forbidPropertyMap));
+                log.info("nicelimit limit-url updateLocalForbidPropertyMap as: {}", JsonUtil.toJsonString(forbidPropertyMap));
             }
         }
     }
@@ -336,7 +336,7 @@ public class NiceLimitUrlHandler {
             rateLimiterPropertyMap = rateLimiterProperties.stream()
                     .collect(Collectors.toMap(NiceLimitRateLimiterProperty::getUrl, Function.identity()));
             if (newProperty.getDebug()) {
-                log.info("nicelimit updateLocalRateLimiterPropertyMap as: {}", JsonUtil.toJsonString(rateLimiterPropertyMap));
+                log.info("nicelimit limit-url updateLocalRateLimiterPropertyMap as: {}", JsonUtil.toJsonString(rateLimiterPropertyMap));
             }
         }
     }
